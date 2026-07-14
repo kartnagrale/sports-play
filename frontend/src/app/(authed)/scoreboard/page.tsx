@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { api, StandingDto } from "@/lib/api";
 import { createMatchSocket } from "@/lib/ws";
 import { toast } from "sonner";
@@ -14,31 +14,38 @@ export default function ScoreboardPage() {
   const [loading, setLoading] = useState(true);
   const [populating, setPopulating] = useState(false);
 
-  const load = async (penalties: boolean = penaltiesOn) => {
+  const load = useCallback(async (penalties: boolean) => {
     setLoading(true);
     try {
       const { data } = await api.get<StandingDto[]>(`/analytics/standings?penalties=${penalties}`);
       setRows(data);
-    } finally { setLoading(false); }
-  };
+    } catch (err) {
+      console.warn("standings load failed", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, []);
+  useEffect(() => {
+    load(penaltiesOn);
+  }, [load, penaltiesOn]);
 
   useEffect(() => {
     const client = createMatchSocket(() => { load(penaltiesOn); });
     return () => { client.deactivate(); };
-    // eslint-disable-next-line
-  }, [penaltiesOn]);
+  }, [load, penaltiesOn]);
 
   const populate = async () => {
     setPopulating(true);
     try {
       const { data } = await api.post("/admin/demo/populate?autoPlay=6");
       toast.success(`Seeded ${data.matches} matches, auto-played ${data.autoPlayed}`);
-      await load();
+      await load(penaltiesOn);
     } catch (e: any) {
       toast.error(e?.response?.data?.message || "Populate failed");
-    } finally { setPopulating(false); }
+    } finally {
+      setPopulating(false);
+    }
   };
 
   const anyPenalty = rows.some((r) => r.penalty > 0);
@@ -59,12 +66,12 @@ export default function ScoreboardPage() {
             <input
               type="checkbox"
               checked={penaltiesOn}
-              onChange={(e) => { setPenaltiesOn(e.target.checked); load(e.target.checked); }}
+              onChange={(e) => setPenaltiesOn(e.target.checked)}
               className="accent-primary"
             />
             Apply -2 pt penalties
           </label>
-          <button className="btn btn-ghost" onClick={() => load()} data-testid="refresh-standings">
+          <button className="btn btn-ghost" onClick={() => load(penaltiesOn)} data-testid="refresh-standings">
             <RefreshCw size={14} /> Refresh
           </button>
           {user?.role === "ADMIN" && (

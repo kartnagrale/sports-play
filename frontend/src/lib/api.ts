@@ -6,34 +6,19 @@ const BACKEND_URL =
 export const API_BASE = `${BACKEND_URL}/api`;
 export const WS_BASE = process.env.NEXT_PUBLIC_WS_URL || BACKEND_URL;
 
-function tokenFromStorage(): string | null {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem("neml_token");
-}
-
+// httpOnly cookie is set by the backend on /api/auth/login. `withCredentials: true`
+// ensures axios sends it on every subsequent cross-origin request. No token is
+// ever stored in localStorage or accessible to JS on the client — this defends
+// against XSS token theft.
 export const api: AxiosInstance = axios.create({
   baseURL: API_BASE,
   timeout: 15000,
-});
-
-api.interceptors.request.use((config) => {
-  const t = tokenFromStorage();
-  if (t) {
-    config.headers = config.headers || {};
-    (config.headers as any).Authorization = `Bearer ${t}`;
-  }
-  return config;
+  withCredentials: true,
 });
 
 api.interceptors.response.use(
   (r) => r,
-  (err) => {
-    if (err?.response?.status === 401 && typeof window !== "undefined") {
-      localStorage.removeItem("neml_token");
-      localStorage.removeItem("neml_user");
-    }
-    return Promise.reject(err);
-  }
+  (err) => Promise.reject(err)
 );
 
 export type Role = "ADMIN" | "TEAM_OWNER" | "VIEWER";
@@ -186,4 +171,3 @@ export const FORMAT_SHORT: Record<string, string> = {
   MIXED_DOUBLES: "XD",
   MENS_DOUBLES_TWO: "MD2",
 };
-

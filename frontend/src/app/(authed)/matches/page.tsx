@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { api, MatchDto, MatchFormatDto, PlayerDto, TeamDto, FORMAT_LABEL, FORMAT_SHORT } from "@/lib/api";
 import { createMatchSocket } from "@/lib/ws";
 import { useAuth } from "@/lib/auth";
@@ -16,8 +16,10 @@ export default function MatchesPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [loading, setLoading] = useState(true);
+  const selectedIdRef = useRef<string | null>(null);
+  selectedIdRef.current = selectedId;
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
       const [m, t, p] = await Promise.all([
@@ -28,11 +30,17 @@ export default function MatchesPage() {
       setMatches(m.data);
       setTeams(t.data);
       setPlayers(p.data);
-      if (!selectedId && m.data.length) setSelectedId(m.data[0].id);
-    } finally { setLoading(false); }
-  };
+      if (!selectedIdRef.current && m.data.length) setSelectedId(m.data[0].id);
+    } catch (err) {
+      console.warn("matches load failed", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, []);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   // Realtime updates: reload matches whenever a MATCH event arrives.
   useEffect(() => {
@@ -46,9 +54,10 @@ export default function MatchesPage() {
       }
       load();
     });
-    return () => { client.deactivate(); };
-    // eslint-disable-next-line
-  }, []);
+    return () => {
+      client.deactivate();
+    };
+  }, [load]);
 
   const selected = matches.find((m) => m.id === selectedId);
 

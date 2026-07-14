@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { api, TeamDto, AuctionStateDto } from "@/lib/api";
 import { formatCr } from "@/lib/format";
 import { useAuth } from "@/lib/auth";
@@ -13,20 +13,25 @@ export default function DashboardPage() {
   const [state, setState] = useState<AuctionStateDto | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const [t, s] = await Promise.all([
-          api.get("/teams"),
-          api.get("/auction/state"),
-        ]);
-        setTeams(t.data);
-        setState(s.data);
-      } finally {
-        setLoading(false);
-      }
-    })();
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [t, s] = await Promise.all([
+        api.get("/teams"),
+        api.get("/auction/state"),
+      ]);
+      setTeams(t.data);
+      setState(s.data);
+    } catch (err) {
+      console.warn("dashboard load failed", err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const totalSold =
     state?.teams.reduce(

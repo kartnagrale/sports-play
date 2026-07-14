@@ -19,7 +19,6 @@ export default function LoginPage() {
   useEffect(() => {
     if (user) router.replace("/dashboard");
   }, [user, router]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) return;

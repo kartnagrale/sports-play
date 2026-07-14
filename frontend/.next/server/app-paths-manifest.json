@@ -1,8 +1,6 @@
 {
   "/_not-found/page": "app/_not-found/page.js",
   "/login/page": "app/login/page.js",
-  "/(authed)/matches/page": "app/(authed)/matches/page.js",
   "/(authed)/dashboard/page": "app/(authed)/dashboard/page.js",
-  "/(authed)/scoreboard/page": "app/(authed)/scoreboard/page.js",
   "/(authed)/auction/page": "app/(authed)/auction/page.js"
 }

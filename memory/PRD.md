@@ -73,3 +73,25 @@ Build a modern, responsive, real-time Badminton Auction and Tournament Managemen
 - Spring Boot JAR at `/app/backend/target/badminton-0.0.1-SNAPSHOT.jar` launched by supervisor.
 - Next.js `next dev` on `:3000` (supervisor).
 - Env: see `/app/backend/src/main/resources/application.yml` + `/app/frontend/.env`.
+
+## Code Review Round 1 (2026-07-14)
+
+### Security fix — httpOnly cookie auth (replaces localStorage token storage)
+- Backend `AuthController.login` now emits `Set-Cookie: neml_auth=<jwt>; HttpOnly; Secure; SameSite=Lax; Max-Age=86400`.
+- Backend `AuthController.logout` clears cookie.
+- Backend `JwtAuthFilter` prefers `Authorization: Bearer` header (for curl/tools) and falls back to the `neml_auth` cookie.
+- Frontend `axios` client uses `withCredentials: true`; auth store no longer touches `localStorage`.
+- Auth hydration on page load calls `/api/auth/me` — cookie survives refresh, JS can't read the token.
+- Verified via Playwright: `Object.keys(localStorage) === []` before and after login; cookie flagged httpOnly/Secure.
+
+### Hook dependency + error-handling fixes
+- `useAuth().hydrate` now returns a Promise; JSON.parse try/catch replaced by explicit `console.warn` for non-401 errors.
+- `AuctionPage`, `DashboardPage`, `MatchesPage`, `ScoreboardPage`: extracted `load()` into `useCallback` and added to effect dependency arrays. Removed all `eslint-disable-next-line` escapes.
+- Added `handleEvent` `useCallback` for the WebSocket handler in the auction page so React can safely track it.
+
+### Auction page refactor
+- Extracted 3 sub-components to their own files under `src/components/auction/`:
+  - `BidPanel.tsx`
+  - `CoinTossDialog.tsx`
+  - `BasePriceDialog.tsx`
+- Split the page-level `AuctionPage()` into `AuctionHeader`, `StatusPill`, `LivePlayerCard`, `TimerOrLeader`, `EmptyPlayerState`, `AdminControlPanel`, `BidHistoryList`, `TeamPurseCard`. Total complexity drops significantly.

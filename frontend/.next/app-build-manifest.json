@@ -1,14 +1,9 @@
 {
   "pages": {
-    "/(authed)/matches/page": [
+    "/login/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(authed)/matches/page.js"
-    ],
-    "/(authed)/layout": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(authed)/layout.js"
+      "static/chunks/app/login/page.js"
     ],
     "/layout": [
       "static/chunks/webpack.js",
@@ -16,20 +11,15 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/login/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/login/page.js"
-    ],
     "/(authed)/dashboard/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(authed)/dashboard/page.js"
     ],
-    "/(authed)/scoreboard/page": [
+    "/(authed)/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(authed)/scoreboard/page.js"
+      "static/chunks/app/(authed)/layout.js"
     ],
     "/(authed)/auction/page": [
       "static/chunks/webpack.js",

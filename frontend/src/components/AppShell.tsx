@@ -5,17 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import {
-  LayoutDashboard,
-  Gavel,
-  Trophy,
-  Calendar,
-  Users,
-  BarChart3,
-  Award,
-  Sparkles,
-  History,
-  Bell,
-  LogOut,
+  LayoutDashboard, Gavel, Trophy, Calendar, Users, BarChart3, Award, Sparkles, History, Bell, LogOut,
 } from "lucide-react";
 
 const NAV = [
@@ -41,9 +31,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }, [hydrate]);
 
   useEffect(() => {
-    if (hydrated && !user) {
-      router.replace("/login");
-    }
+    if (hydrated && !user) router.replace("/login");
   }, [hydrated, user, router]);
 
   if (!hydrated) {
@@ -55,9 +43,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }
   if (!user) return null;
 
+  const handleLogout = async () => {
+    await logout();
+    router.replace("/login");
+  };
+
   return (
     <div className="min-h-screen flex">
-      {/* Sidebar */}
       <aside className="w-64 shrink-0 border-r border-white/10 bg-bg-surface flex flex-col">
         <div className="p-6 border-b border-white/10">
           <div className="text-primary h-heading text-2xl font-bold leading-none drop-shadow-glow" data-testid="brand-name">
@@ -96,10 +88,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             </div>
           </div>
           <button
-            onClick={() => {
-              logout();
-              router.replace("/login");
-            }}
+            onClick={handleLogout}
             className="btn btn-ghost w-full justify-center text-xs"
             data-testid="logout-btn"
           >
@@ -107,7 +96,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </button>
         </div>
       </aside>
-      {/* Main content */}
       <main className="flex-1 min-w-0 overflow-x-hidden">{children}</main>
     </div>
   );
