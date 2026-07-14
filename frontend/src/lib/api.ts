@@ -92,3 +92,96 @@ export interface AuctionStateDto {
   teams: TeamDto[];
   remainingPlayers: number;
 }
+
+export interface StandingDto {
+  team: { id: string; name: string; shortCode: string; primaryColor: string };
+  played: number;
+  won: number;
+  lost: number;
+  formatWins: number;
+  formatLosses: number;
+  formatDiff: number;
+  basePoints: number;
+  penalty: number;
+  totalPoints: number;
+  rank: number;
+  unplayedPlayerIds: string[];
+}
+
+export interface FormatLeaderDto {
+  formatType: string;
+  leadingTeam?: { id: string; name: string; shortCode: string; primaryColor: string } | null;
+  wins: number;
+  allTeams: { team: { id: string; name: string; shortCode: string; primaryColor: string }; wins: number }[];
+}
+
+export interface TeamAnalysisDto {
+  team: { id: string; name: string; shortCode: string; primaryColor: string };
+  played: number;
+  won: number;
+  lost: number;
+  winPct: number;
+  participationCount: number;
+  squadSize: number;
+  participationPct: number;
+  unplayedPlayerIds: string[];
+  strongestFormat?: string | null;
+  weakestFormat?: string | null;
+  formatBreakdown: { formatType: string; won: number; lost: number }[];
+  headToHead: { opponent: { id: string; name: string; shortCode: string; primaryColor: string }; played: number; won: number; lost: number }[];
+}
+
+export interface TopPerformerDto {
+  player: { id: string; fullName: string; gender: string; teamId: string };
+  team: { id: string; name: string; shortCode: string; primaryColor: string };
+  matchesPlayed: number;
+  wins: number;
+  losses: number;
+  winPct: number;
+  longestStreak: number;
+  totalPointsWon: number;
+  avgMargin: number;
+}
+
+export interface MatchFormatDto {
+  id: string;
+  formatType: string;
+  formatOrder: number;
+  sideAPlayers: { id: string; fullName: string; gender: string; teamId: string }[];
+  sideBPlayers: { id: string; fullName: string; gender: string; teamId: string }[];
+  scoreA: number;
+  scoreB: number;
+  winner?: { id: string; name: string; shortCode: string; primaryColor: string } | null;
+  completed: boolean;
+}
+
+export interface MatchDto {
+  id: string;
+  matchNumber: number;
+  teamA: { id: string; name: string; shortCode: string; primaryColor: string };
+  teamB: { id: string; name: string; shortCode: string; primaryColor: string };
+  scheduledAt: string;
+  status: "SCHEDULED" | "LIVE" | "COMPLETED";
+  winner?: { id: string; name: string; shortCode: string; primaryColor: string } | null;
+  teamAFormatWins: number;
+  teamBFormatWins: number;
+  venue?: string;
+  formats: MatchFormatDto[];
+}
+
+export const FORMAT_LABEL: Record<string, string> = {
+  MENS_SINGLES: "Men's Singles",
+  WOMENS_SINGLES: "Women's Singles",
+  MENS_DOUBLES: "Men's Doubles",
+  MIXED_DOUBLES: "Mixed Doubles",
+  MENS_DOUBLES_TWO: "Men's Doubles II",
+};
+
+export const FORMAT_SHORT: Record<string, string> = {
+  MENS_SINGLES: "MS",
+  WOMENS_SINGLES: "WS",
+  MENS_DOUBLES: "MD",
+  MIXED_DOUBLES: "XD",
+  MENS_DOUBLES_TWO: "MD2",
+};
+

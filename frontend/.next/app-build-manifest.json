@@ -36,10 +36,30 @@
       "static/chunks/main-app.js",
       "static/chunks/app/(authed)/teams/page.js"
     ],
-    "/_not-found/page": [
+    "/(authed)/scoreboard/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/_not-found/page.js"
+      "static/chunks/app/(authed)/scoreboard/page.js"
+    ],
+    "/(authed)/matches/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(authed)/matches/page.js"
+    ],
+    "/(authed)/format-leaders/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(authed)/format-leaders/page.js"
+    ],
+    "/(authed)/top-performers/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(authed)/top-performers/page.js"
+    ],
+    "/(authed)/analysis/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(authed)/analysis/page.js"
     ]
   }
 }
