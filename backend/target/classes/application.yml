@@ -1,0 +1,44 @@
+server:
+  port: 8001
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: neml-badminton
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/neml_badminton}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:neml-badminton-super-secret-key-change-in-production-min-256-bits-required-here}
+    expiration-ms: 86400000
+  cors:
+    allowed-origins: ${CORS_ORIGINS:*}
+  auction:
+    base-price: 2000000
+    team-purse: 1000000000
+    squad-size: 12
+    min-female: 3
+    min-male: 9
+    bid-increment: 500000
+
+logging:
+  level:
+    org.springframework.security: INFO
+    com.neml.badminton: INFO
+    org.hibernate.SQL: WARN
