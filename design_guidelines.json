@@ -1,0 +1,117 @@
+{
+  "theme_strategy": "dark_primary",
+  "emotional_archetype": "THE PERFORMANCE PRO mixed with ELECTRIC & NEON",
+  "vibe": "Electric, premium, sports-broadcast quality, high-tension auction",
+  "colors": {
+    "background": {
+      "default": "#08090A",
+      "surface": "#121316",
+      "surface_elevated": "#1A1D24",
+      "glass": "rgba(18, 19, 22, 0.7)"
+    },
+    "primary": "#D3FF24",
+    "primary_hover": "#B8E610",
+    "secondary": "#00F0FF",
+    "danger": "#FF3B30",
+    "danger_hover": "#E62E25",
+    "success": "#22C55E",
+    "warning": "#F59E0B",
+    "text": {
+      "primary": "#FFFFFF",
+      "secondary": "#A1A1AA",
+      "muted": "#52525B"
+    },
+    "border": {
+      "default": "rgba(255, 255, 255, 0.1)",
+      "focus": "#D3FF24"
+    }
+  },
+  "typography": {
+    "fonts": {
+      "heading": "Oswald",
+      "body": "Outfit",
+      "mono": "JetBrains Mono"
+    },
+    "hierarchy": {
+      "h1": "text-5xl sm:text-6xl font-heading font-bold uppercase tracking-tighter",
+      "h2": "text-3xl sm:text-4xl font-heading font-semibold uppercase tracking-tight",
+      "h3": "text-xl sm:text-2xl font-heading font-medium tracking-tight",
+      "body": "text-base font-body text-text-secondary leading-relaxed",
+      "stats_number": "text-4xl font-body font-black text-text-primary tracking-tight",
+      "label": "text-xs font-heading uppercase tracking-[0.2em] text-text-muted"
+    },
+    "instructions_to_main_agent": "Never use Inter, Roboto, or generic sans for headings. Use Oswald for all headings and major numbers. Use Outfit for body text and table data. Always apply uppercase to headings for the sports-broadcast feel."
+  },
+  "visual_enhancers": {
+    "surfaces": {
+      "glassmorphism": "backdrop-blur-xl bg-[#121316]/70 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.12)]",
+      "grid_borders": "border-collapse border-r border-b border-white/10",
+      "retro_futurism": "Subtle scanlines overlay on the Live Auction card for a TV broadcast effect"
+    },
+    "shadows": {
+      "glow_primary": "drop-shadow-[0_0_12px_rgba(211,255,36,0.4)]",
+      "glow_danger": "drop-shadow-[0_0_12px_rgba(255,59,48,0.4)]"
+    }
+  },
+  "layouts": {
+    "dashboard_grid": "Grid Layout (Bento Mode B): grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6. Dashboard cards should be dense, fully utilizing space with h-full on children.",
+    "auction_screen": "Grid Layout: 12-column grid. Left/Center 8 cols for Live Player Card & Bidding action. Right 4 cols for Team Purse status and Bid History timeline.",
+    "spacing": "Use generous padding (p-6, p-8) for structural containers. Dense padding (p-3, p-4) for data tables and inner widget contents.",
+    "alignment_rules": "Left-align data. Center-align huge auction numbers and major countdown timers."
+  },
+  "component_patterns": {
+    "live_auction_card": "The Hero element. Full-bleed background image with a dark gradient overlay (bg-gradient-to-t from-black via-black/80 to-transparent). Massive typography for current bid (text-6xl+). Glowing electric borders (tracing beam) when bidding is active.",
+    "admin_controls": "Tactile buttons. Start/Resume uses primary color (Lime/Green). Pause/Undo uses Warning/Danger colors. Heavy borders, no subtle states.",
+    "team_purse_card": "Progress bars for budget spent and slots filled (e.g., Male: 6/9, Female: 2/3). High contrast numbers.",
+    "standings_table": "Shadcn Table. Dark rows with subtle white/5 borders. Hover state is bg-white/5. Rank column should be emphasized (larger, bolder font).",
+    "navigation": "Top bar for global actions (User Profile, Quick Stats) and left sidebar for tabs (Dashboard, Auction, Scoreboard, etc.). Sidebar uses dark solid background border-r border-white/10."
+  },
+  "motion": {
+    "interactions": "Hover states: -translate-y-1, scale-105 for interactive elements. Button clicks: scale-95.",
+    "live_updates": "When a new bid comes in, flash the background of the bid card temporarily or pulse the glowing border.",
+    "page_transitions": "Framer Motion: Fade in with a slight vertical slide for entering sections."
+  },
+  "accessibility": {
+    "contrast": "Ensure pure white or primary color text over the dark background passes APCA/WCAG standards. Do not use pure transparent backgrounds under text. Use solid or heavily blurred backgrounds.",
+    "focus": "focus:ring-2 focus:ring-primary focus:outline-none focus:ring-offset-2 focus:ring-offset-background",
+    "data_testid": "MANDATORY: Add data-testid to all buttons, inputs, tabs, and major stats."
+  },
+  "media": {
+    "images": {
+      "player_action": {
+        "url": "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NjV8MHwxfHNlYXJjaHwxfHxiYWRtaW50b24lMjBhY3Rpb24lMjBtYXRjaHxlbnwwfHx8fDE3ODQwMDYxMzh8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Badminton player in mid-air smash action. Use for Live Auction Hero Card background or Top Performers banner."
+      },
+      "stadium_lights": {
+        "url": "https://images.unsplash.com/photo-1599158150601-1417ebbaafdd?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNTl8MHwxfHNlYXJjaHwxfHxzcG9ydHMlMjBzdGFkaXVtJTIwYXJlbmElMjBsaWdodHMlMjBkYXJrfGVufDB8fHx8MTc4NDAwNjEzOHww&ixlib=rb-4.1.0&q=85",
+        "description": "Dark stadium lights. Use for global dashboard background or authentication/login screen background."
+      },
+      "shuttlecock_macro": {
+        "url": "https://images.unsplash.com/photo-1696250530563-70f39e532e10?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODh8MHwxfHNlYXJjaHwxfHxiYWRtaW50b24lMjBzaHV0dGxlY29jayUyMG1hY3JvfGVufDB8fHx8MTc4NDAwNjEzOHww&ixlib=rb-4.1.0&q=85",
+        "description": "Macro shot of neon yellow shuttlecock. Perfect for Announcements banner, Empty States, or decorative side images."
+      }
+    },
+    "instructions": "Use these images strictly as structural backgrounds or hero elements. Apply appropriate overlays (e.g., bg-black/60) so text remains readable."
+  },
+  "3d_libraries": {
+    "recommendation": "Not strictly necessary for the main UI, but if adding visual flair, use TSParticles for subtle floating 'sparks' or dust in the background to simulate stadium atmosphere under lights."
+  },
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "You tend to converge toward generic, 'on distribution' outputs. In frontend design, this creates what users call the 'AI slop' aesthetic. Avoid this: make creative, distinctive frontends that surprise and delight.",
+    "Dark colors look good when used independently without gradients. DO NOT use dark colors as gradients.",
+    "Don't make generic centered layouts, simplistic gradients, and uniform styling.",
+    "Create depth through layered design elements with z-index hierarchy.",
+    "Use glass-morphism effects with backdrop filters (12-24px blur).",
+    "You MUST NOT apply universal transition. Eg: transition: all. This results in breaking transforms. Always add transitions for specific interactive elements like button, input excluding transforms.",
+    "You MUST NOT center align the app container, ie do not add .App { text-align: center; } in the css file. This disrupts the human natural reading flow of text.",
+    "Always use modern button styles like pill-shaped, or sharp button with interaction animations & color relevant to the app style.",
+    "NEVER: use AI assistant Emoji characters like 🤖🧠💭💡🔮🎯 etc for icons.",
+    "Every interaction needs micro-animations - hover states, transitions, parallax effects, and entrance animations. Static = dead.",
+    "Use 2-3x more spacing than feels comfortable. Cramped designs look cheap.",
+    "Subtle grain textures, noise overlays, custom cursors, selection states, and loading animations: separates good from extraordinary.",
+    "Main agent relies on these image URLs. Missing categories (especially sponsor logos) = main agent will use placeholder text which is FORBIDDEN.",
+    "Prioritize using pre-existing components from src/components/ui when applicable.",
+    "Create new components that match the style and conventions of existing components when needed.",
+    "Use sonner for toasts. Sonner component are located in /app/src/components/ui/sonner.tsx"
+  ]
+}
