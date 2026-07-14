@@ -7,10 +7,13 @@ import com.neml.badminton.websocket.AuctionBroadcaster;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.*;
 
 @Service
@@ -34,6 +37,9 @@ public class AuctionService {
     @Value("${app.auction.bid-increment}")
     private long bidIncrement;
 
+    @Value("${app.auction.timer-seconds:30}")
+    private int timerSeconds;
+
     public AuctionService(AuctionStateRepository auctionStateRepository,
                           PlayerRepository playerRepository,
                           TeamRepository teamRepository,
@@ -49,10 +55,17 @@ public class AuctionService {
     private AuctionState state() {
         List<AuctionState> all = auctionStateRepository.findAll();
         if (all.isEmpty()) {
-            AuctionState s = AuctionState.builder().status(AuctionStatus.NOT_STARTED).timerSeconds(30).build();
+            AuctionState s = AuctionState.builder().status(AuctionStatus.NOT_STARTED).timerSeconds(timerSeconds).build();
             return auctionStateRepository.save(s);
         }
         return all.get(0);
+    }
+
+    private Instant resetDeadline(AuctionState s) {
+        Instant deadline = Instant.now().plusSeconds(timerSeconds);
+        s.setBidDeadline(deadline);
+        s.setTimerSeconds(timerSeconds);
+        return deadline;
     }
 
     public AuctionStateDto getState() {
@@ -69,7 +82,8 @@ public class AuctionService {
                 .map(TeamDto::from).toList();
         int remaining = playerRepository.findAllByStatusOrderByAuctionOrderAsc(PlayerStatus.AVAILABLE).size();
         PlayerDto current = s.getCurrentPlayer() == null ? null : PlayerDto.from(s.getCurrentPlayer());
-        return new AuctionStateDto(s.getStatus(), current, highest, history, teams, remaining);
+        return new AuctionStateDto(s.getStatus(), current, highest, history, teams, remaining,
+                s.getBidDeadline(), s.getTimerSeconds());
     }
 
     @Transactional
@@ -87,6 +101,7 @@ public class AuctionService {
                 s.setCurrentPlayer(next);
             }
         }
+        resetDeadline(s);
         auctionStateRepository.save(s);
         AuctionStateDto dto = getState();
         broadcaster.broadcastState(dto);
@@ -97,6 +112,7 @@ public class AuctionService {
     public AuctionStateDto pause() {
         AuctionState s = state();
         s.setStatus(AuctionStatus.PAUSED);
+        s.setBidDeadline(null);
         auctionStateRepository.save(s);
         AuctionStateDto dto = getState();
         broadcaster.broadcastState(dto);
@@ -107,6 +123,7 @@ public class AuctionService {
     public AuctionStateDto resume() {
         AuctionState s = state();
         s.setStatus(AuctionStatus.RUNNING);
+        resetDeadline(s);
         auctionStateRepository.save(s);
         AuctionStateDto dto = getState();
         broadcaster.broadcastState(dto);
@@ -127,6 +144,15 @@ public class AuctionService {
         Team team = teamRepository.findById(req.teamId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Team not found"));
 
+        // Role-based scoping: TEAM_OWNER can only bid for their own team
+        User caller = currentUser();
+        if (caller != null && caller.getRole() == Role.TEAM_OWNER) {
+            if (caller.getTeam() == null || !caller.getTeam().getId().equals(team.getId())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                        "Team owners can only bid on behalf of their own team");
+            }
+        }
+
         BigDecimal amount = req.amount();
         BigDecimal currentHighest = bidRepository.findFirstByPlayerAndActiveTrueOrderByCreatedAtDesc(player)
                 .map(Bid::getAmount).orElse(player.getBasePrice().subtract(BigDecimal.valueOf(bidIncrement)));
@@ -134,17 +160,28 @@ public class AuctionService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Bid must be at least " + currentHighest.add(BigDecimal.valueOf(bidIncrement)));
         }
-        // Solvency check: team must have enough remaining purse to afford this bid AND
-        // still fill remaining slots (each remaining slot needs at least base price of cheapest available).
         validateTeamSolvency(team, player, amount);
 
         Bid bid = Bid.builder().player(player).team(team).amount(amount).active(true).build();
         bidRepository.save(bid);
+        // Reset timer on each new bid
+        resetDeadline(s);
+        auctionStateRepository.save(s);
+
         AuctionStateDto dto = getState();
         broadcaster.broadcastState(dto);
         broadcaster.broadcastEvent("BID_PLACED", Map.of(
                 "teamName", team.getName(), "amount", amount, "player", player.getFullName()));
         return dto;
+    }
+
+    private User currentUser() {
+        try {
+            Object p = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            return p instanceof User u ? u : null;
+        } catch (Exception ignored) {
+            return null;
+        }
     }
 
     private void validateTeamSolvency(Team team, Player player, BigDecimal bidAmount) {
@@ -255,11 +292,13 @@ public class AuctionService {
         if (next == null) {
             s.setStatus(AuctionStatus.COMPLETED);
             s.setCurrentPlayer(null);
+            s.setBidDeadline(null);
             auctionStateRepository.save(s);
         } else {
             next.setStatus(PlayerStatus.ON_BLOCK);
             playerRepository.save(next);
             s.setCurrentPlayer(next);
+            if (s.getStatus() == AuctionStatus.RUNNING) resetDeadline(s);
             auctionStateRepository.save(s);
         }
         AuctionStateDto dto = getState();
@@ -290,6 +329,7 @@ public class AuctionService {
         p.setStatus(PlayerStatus.ON_BLOCK);
         playerRepository.save(p);
         s.setCurrentPlayer(p);
+        if (s.getStatus() == AuctionStatus.RUNNING) resetDeadline(s);
         auctionStateRepository.save(s);
         AuctionStateDto dto = getState();
         broadcaster.broadcastState(dto);
@@ -305,5 +345,48 @@ public class AuctionService {
         Map<String, Object> result = Map.of("winnerTeamId", winner.toString(), "winnerTeamName", t.getName());
         broadcaster.broadcastEvent("COIN_TOSS", result);
         return result;
+    }
+
+    @Transactional
+    public PlayerDto updateBasePrice(UUID playerId, BigDecimal basePrice) {
+        if (basePrice == null || basePrice.signum() <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Base price must be > 0");
+        }
+        Player p = playerRepository.findById(playerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found"));
+        if (p.getStatus() == PlayerStatus.SOLD) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot change base price after sale");
+        }
+        p.setBasePrice(basePrice);
+        playerRepository.save(p);
+        broadcaster.broadcastEvent("BASE_PRICE_UPDATED",
+                Map.of("playerId", p.getId().toString(), "basePrice", basePrice));
+        return PlayerDto.from(p);
+    }
+
+    /**
+     * Runs every second. If auction is RUNNING and the current player's bid deadline has passed,
+     * auto-mark unsold (or auto-sell to highest bidder if there is one).
+     */
+    @Scheduled(fixedRate = 1000L)
+    @Transactional
+    public void timerSweep() {
+        AuctionState s;
+        try {
+            s = state();
+        } catch (Exception e) { return; }
+        if (s.getStatus() != AuctionStatus.RUNNING) return;
+        if (s.getCurrentPlayer() == null) return;
+        Instant deadline = s.getBidDeadline();
+        if (deadline == null) return;
+        if (Instant.now().isBefore(deadline)) return;
+
+        // Deadline passed — if a bid exists, sell to highest; else mark unsold.
+        Optional<Bid> highest = bidRepository.findFirstByPlayerAndActiveTrueOrderByCreatedAtDesc(s.getCurrentPlayer());
+        if (highest.isPresent()) {
+            sell(null);
+        } else {
+            markUnsold();
+        }
     }
 }

@@ -31,4 +31,12 @@ public class AuctionBroadcaster {
                 "data", data
         ));
     }
+
+    public void broadcastMatch(String eventType, Object data) {
+        messagingTemplate.convertAndSend("/topic/matches", Map.of(
+                "type", eventType,
+                "at", Instant.now().toString(),
+                "data", data
+        ));
+    }
 }

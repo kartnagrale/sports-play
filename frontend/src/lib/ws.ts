@@ -11,6 +11,14 @@ export type AuctionEvent = {
 };
 
 export function createAuctionSocket(onEvent: (evt: AuctionEvent) => void): Client {
+  return createSocket("/topic/auction", onEvent);
+}
+
+export function createMatchSocket(onEvent: (evt: AuctionEvent) => void): Client {
+  return createSocket("/topic/matches", onEvent);
+}
+
+function createSocket(topic: string, onEvent: (evt: AuctionEvent) => void): Client {
   const client = new Client({
     webSocketFactory: () => new SockJS(`${WS_BASE}/ws`) as any,
     reconnectDelay: 3000,
@@ -19,7 +27,7 @@ export function createAuctionSocket(onEvent: (evt: AuctionEvent) => void): Clien
     debug: () => {},
   });
   client.onConnect = () => {
-    client.subscribe("/topic/auction", (msg: IMessage) => {
+    client.subscribe(topic, (msg: IMessage) => {
       try {
         const parsed = JSON.parse(msg.body);
         onEvent(parsed);

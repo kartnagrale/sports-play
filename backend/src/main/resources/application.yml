@@ -36,6 +36,7 @@ app:
     min-female: 3
     min-male: 9
     bid-increment: 500000
+    timer-seconds: 30
 
 logging:
   level:

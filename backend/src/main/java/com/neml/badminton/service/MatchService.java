@@ -224,11 +224,11 @@ public class MatchService {
     @Transactional
     public void deleteMatch(UUID id) {
         matchRepository.deleteById(id);
-        broadcaster.broadcastEvent("MATCH_DELETED", Map.of("id", id.toString()));
+        broadcaster.broadcastMatch("MATCH_DELETED", Map.of("id", id.toString()));
     }
 
     private void broadcast(String type, Match m) {
-        broadcaster.broadcastEvent(type, Map.of(
+        broadcaster.broadcastMatch(type, Map.of(
                 "matchId", m.getId().toString(),
                 "matchNumber", m.getMatchNumber(),
                 "status", m.getStatus().name(),

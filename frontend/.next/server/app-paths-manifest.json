@@ -1,11 +1,8 @@
 {
+  "/_not-found/page": "app/_not-found/page.js",
   "/login/page": "app/login/page.js",
-  "/(authed)/dashboard/page": "app/(authed)/dashboard/page.js",
-  "/(authed)/auction/page": "app/(authed)/auction/page.js",
-  "/(authed)/teams/page": "app/(authed)/teams/page.js",
-  "/(authed)/scoreboard/page": "app/(authed)/scoreboard/page.js",
   "/(authed)/matches/page": "app/(authed)/matches/page.js",
-  "/(authed)/format-leaders/page": "app/(authed)/format-leaders/page.js",
-  "/(authed)/top-performers/page": "app/(authed)/top-performers/page.js",
-  "/(authed)/analysis/page": "app/(authed)/analysis/page.js"
+  "/(authed)/dashboard/page": "app/(authed)/dashboard/page.js",
+  "/(authed)/scoreboard/page": "app/(authed)/scoreboard/page.js",
+  "/(authed)/auction/page": "app/(authed)/auction/page.js"
 }

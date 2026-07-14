@@ -45,11 +45,14 @@ public class Dtos {
 
     public record AuctionStateDto(AuctionStatus status, PlayerDto currentPlayer,
                                   BidDto highestBid, List<BidDto> bidHistory,
-                                  List<TeamDto> teams, Integer remainingPlayers) {}
+                                  List<TeamDto> teams, Integer remainingPlayers,
+                                  java.time.Instant bidDeadline, Integer timerSeconds) {}
 
     public record PlaceBidRequest(UUID playerId, UUID teamId, BigDecimal amount) {}
 
     public record SellRequest(UUID playerId, UUID teamId, BigDecimal amount) {}
 
     public record NextPlayerRequest(UUID playerId) {}
+
+    public record UpdateBasePriceRequest(BigDecimal basePrice) {}
 }

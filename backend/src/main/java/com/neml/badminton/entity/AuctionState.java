@@ -26,4 +26,6 @@ public class AuctionState {
     private Player currentPlayer;
 
     private Integer timerSeconds;
+
+    private java.time.Instant bidDeadline;
 }

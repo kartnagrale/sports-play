@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { api, StandingDto } from "@/lib/api";
+import { createMatchSocket } from "@/lib/ws";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
 import { Trophy, AlertTriangle, RefreshCw, Sparkles } from "lucide-react";
@@ -22,6 +23,12 @@ export default function ScoreboardPage() {
   };
 
   useEffect(() => { load(); /* eslint-disable-next-line */ }, []);
+
+  useEffect(() => {
+    const client = createMatchSocket(() => { load(penaltiesOn); });
+    return () => { client.deactivate(); };
+    // eslint-disable-next-line
+  }, [penaltiesOn]);
 
   const populate = async () => {
     setPopulating(true);

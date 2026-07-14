@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { api, MatchDto, MatchFormatDto, PlayerDto, TeamDto, FORMAT_LABEL, FORMAT_SHORT } from "@/lib/api";
+import { createMatchSocket } from "@/lib/ws";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
+import type { Client } from "@stomp/stompjs";
 import { Calendar, Circle, Check, ChevronRight, Plus, Trash2 } from "lucide-react";
 
 export default function MatchesPage() {
@@ -31,6 +33,22 @@ export default function MatchesPage() {
   };
 
   useEffect(() => { load(); /* eslint-disable-next-line */ }, []);
+
+  // Realtime updates: reload matches whenever a MATCH event arrives.
+  useEffect(() => {
+    const client = createMatchSocket((evt) => {
+      if (evt.type === "FORMAT_RESULT") {
+        toast.success(`Match #${evt.data.matchNumber}: ${evt.data.teamA} vs ${evt.data.teamB} — result updated`);
+      } else if (evt.type === "FORMAT_ASSIGNED") {
+        toast(`Match #${evt.data.matchNumber}: players assigned`);
+      } else if (evt.type === "MATCH_CREATED") {
+        toast.success(`New match created: ${evt.data.teamA} vs ${evt.data.teamB}`);
+      }
+      load();
+    });
+    return () => { client.deactivate(); };
+    // eslint-disable-next-line
+  }, []);
 
   const selected = matches.find((m) => m.id === selectedId);
 

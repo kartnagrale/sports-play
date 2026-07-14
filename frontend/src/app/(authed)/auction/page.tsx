@@ -8,7 +8,7 @@ import { formatCr } from "@/lib/format";
 import { toast } from "sonner";
 import type { Client } from "@stomp/stompjs";
 import {
-  Play, Pause, Undo2, Hammer, XCircle, Shuffle, SkipForward, ListChecks,
+  Play, Pause, Undo2, Hammer, XCircle, Shuffle, SkipForward, ListChecks, Timer, Pencil,
 } from "lucide-react";
 
 const BID_INCREMENT = 500_000;
@@ -19,9 +19,17 @@ export default function AuctionPage() {
   const [flash, setFlash] = useState(false);
   const [availablePlayers, setAvailablePlayers] = useState<PlayerDto[]>([]);
   const [coinTossOpen, setCoinTossOpen] = useState(false);
+  const [editBasePriceFor, setEditBasePriceFor] = useState<PlayerDto | null>(null);
+  const [now, setNow] = useState(Date.now());
   const clientRef = useRef<Client | null>(null);
   const isAdmin = user?.role === "ADMIN";
   const isOwner = user?.role === "TEAM_OWNER";
+
+  // Tick every second for countdown timer
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
 
   const load = async () => {
     const [s, p] = await Promise.all([
@@ -75,6 +83,10 @@ export default function AuctionPage() {
   const current = state.currentPlayer;
   const highest = state.highestBid;
   const minNext = highest ? Number(highest.amount) + BID_INCREMENT : Number(current?.basePrice || 0);
+  const secondsLeft = state.bidDeadline
+    ? Math.max(0, Math.floor((new Date(state.bidDeadline).getTime() - now) / 1000))
+    : null;
+  const timerLow = secondsLeft !== null && secondsLeft <= 10;
 
   return (
     <div className="min-h-screen">
@@ -89,6 +101,11 @@ export default function AuctionPage() {
           </div>
           <div className="flex items-center gap-3">
             <StatusPill status={state.status} />
+            {state.status === "RUNNING" && secondsLeft !== null && current && (
+              <span className={`chip ${timerLow ? "chip-live" : "chip-primary"}`} data-testid="auction-timer">
+                <Timer size={12} /> {secondsLeft}s
+              </span>
+            )}
             <span className="chip">
               <ListChecks size={12} /> {state.remainingPlayers} players left
             </span>
@@ -139,7 +156,19 @@ export default function AuctionPage() {
                     <div className="mt-6 grid grid-cols-3 gap-6">
                       <div>
                         <div className="label-cap">Base Price</div>
-                        <div className="stat-num text-2xl mt-1">{formatCr(Number(current.basePrice))}</div>
+                        <div className="flex items-center gap-2 mt-1">
+                          <div className="stat-num text-2xl">{formatCr(Number(current.basePrice))}</div>
+                          {isAdmin && (
+                            <button
+                              onClick={() => setEditBasePriceFor(current)}
+                              className="text-white/40 hover:text-primary"
+                              title="Edit base price"
+                              data-testid="edit-base-price-btn"
+                            >
+                              <Pencil size={13} />
+                            </button>
+                          )}
+                        </div>
                       </div>
                       <div>
                         <div className="label-cap">Current Bid</div>
@@ -148,10 +177,18 @@ export default function AuctionPage() {
                         </div>
                       </div>
                       <div>
-                        <div className="label-cap">Leading</div>
-                        <div className="h-heading text-2xl mt-1" data-testid="leading-team">
-                          {highest ? highest.teamName : "—"}
+                        <div className="label-cap">
+                          {state.status === "RUNNING" && secondsLeft !== null ? "Time Left" : "Leading"}
                         </div>
+                        {state.status === "RUNNING" && secondsLeft !== null ? (
+                          <div className={`stat-num text-4xl mt-1 ${timerLow ? "text-danger animate-pulse" : "text-secondary"}`}>
+                            {String(Math.floor(secondsLeft / 60)).padStart(2, "0")}:{String(secondsLeft % 60).padStart(2, "0")}
+                          </div>
+                        ) : (
+                          <div className="h-heading text-2xl mt-1" data-testid="leading-team">
+                            {highest ? highest.teamName : "—"}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </>
@@ -345,6 +382,52 @@ export default function AuctionPage() {
           }}
         />
       )}
+
+      {editBasePriceFor && (
+        <BasePriceDialog
+          player={editBasePriceFor}
+          onClose={() => setEditBasePriceFor(null)}
+          onSaved={() => setEditBasePriceFor(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+function BasePriceDialog({ player, onClose, onSaved }: { player: PlayerDto; onClose: () => void; onSaved: () => void }) {
+  const [price, setPrice] = useState<number>(Number(player.basePrice));
+  const submit = async () => {
+    try {
+      await api.put(`/admin/auction/players/${player.id}/base-price`, { basePrice: price });
+      toast.success(`Updated base price for ${player.fullName}`);
+      onSaved();
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message || e?.response?.data || "Failed");
+    }
+  };
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 backdrop-blur-sm" onClick={onClose}>
+      <div className="card-elev rounded-2xl p-8 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+        <div className="label-cap">Player pricing</div>
+        <h3 className="h-heading text-2xl mt-1 mb-4">{player.fullName}</h3>
+        <div>
+          <label className="label-cap block mb-2">Base price (₹)</label>
+          <input
+            type="number"
+            step={100000}
+            min={100000}
+            value={price}
+            onChange={(e) => setPrice(Number(e.target.value))}
+            className="input"
+            data-testid="base-price-input"
+          />
+          <div className="text-white/40 text-xs mt-1">{formatCr(price)}</div>
+        </div>
+        <div className="flex gap-2 mt-6">
+          <button className="btn btn-ghost flex-1 justify-center" onClick={onClose}>Cancel</button>
+          <button className="btn btn-primary flex-1 justify-center" onClick={submit} data-testid="save-base-price">Save</button>
+        </div>
+      </div>
     </div>
   );
 }

@@ -91,6 +91,8 @@ export interface AuctionStateDto {
   bidHistory: BidDto[];
   teams: TeamDto[];
   remainingPlayers: number;
+  bidDeadline?: string | null;
+  timerSeconds?: number | null;
 }
 
 export interface StandingDto {

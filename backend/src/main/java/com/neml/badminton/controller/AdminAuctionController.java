@@ -63,4 +63,11 @@ public class AdminAuctionController {
     public Map<String, Object> coinToss(@RequestBody Map<String, List<UUID>> body) {
         return auctionService.coinToss(body.get("teamIds"));
     }
+
+    @PutMapping("/players/{id}/base-price")
+    public com.neml.badminton.dto.Dtos.PlayerDto updateBasePrice(
+            @PathVariable UUID id,
+            @RequestBody com.neml.badminton.dto.Dtos.UpdateBasePriceRequest req) {
+        return auctionService.updateBasePrice(id, req.basePrice());
+    }
 }

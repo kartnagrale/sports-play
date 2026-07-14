@@ -45,6 +45,7 @@ com/neml/badminton/security/JwtService.class
 com/neml/badminton/entity/AuctionState.class
 com/neml/badminton/dto/MatchDtos$TopPerformerDto.class
 com/neml/badminton/controller/AuctionController.class
+com/neml/badminton/dto/Dtos$UpdateBasePriceRequest.class
 com/neml/badminton/dto/Dtos$BidDto.class
 com/neml/badminton/controller/AdminDemoController.class
 com/neml/badminton/dto/Dtos$NextPlayerRequest.class
