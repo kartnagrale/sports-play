@@ -1,24 +1,26 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'class',
   content: [
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
       colors: {
+        white: "rgb(var(--color-fg) / <alpha-value>)",
         bg: {
-          DEFAULT: "#08090A",
-          surface: "#121316",
-          elev: "#1A1D24",
+          DEFAULT: "var(--color-bg)",
+          surface: "var(--color-surface)",
+          elev: "var(--color-elev)",
         },
         primary: {
-          DEFAULT: "#D3FF24",
-          hover: "#B8E610",
+          DEFAULT: "var(--color-primary)",
+          hover: "var(--color-primary-hover)",
         },
-        secondary: "#00F0FF",
-        danger: "#FF3B30",
-        success: "#22C55E",
-        warning: "#F59E0B",
+        secondary: "var(--color-secondary)",
+        danger: "var(--color-danger)",
+        success: "var(--color-success)",
+        warning: "var(--color-warning)",
       },
       fontFamily: {
         heading: ["Oswald", "sans-serif"],

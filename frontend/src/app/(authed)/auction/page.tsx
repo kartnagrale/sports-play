@@ -85,6 +85,24 @@ export default function AuctionPage() {
     }
   };
 
+  const handleQuickBid = async (teamId: string) => {
+    if (state?.status !== "RUNNING" || !state.currentPlayer) return;
+    const h = state.highestBid;
+    const m = h ? Number(h.amount) + BID_INCREMENT : Number(state.currentPlayer.basePrice || 0);
+    try {
+      await api.post("/auction/bid", { playerId: state.currentPlayer.id, teamId, amount: m });
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message || e?.response?.data || "Bid failed");
+    }
+  };
+
+  const canQuickBid = (teamId: string) => {
+    if (state?.status !== "RUNNING" || !state.currentPlayer) return false;
+    if (isAdmin) return true;
+    if (isOwner && user?.teamId === teamId) return true;
+    return false;
+  };
+
   if (!state) {
     return <div className="p-10 text-white/40 h-heading uppercase tracking-widest">Loading auction...</div>;
   }
@@ -142,7 +160,12 @@ export default function AuctionPage() {
               <div className="label-cap mb-2">Teams · Purse</div>
               <div className="space-y-3">
                 {state.teams.map((t) => (
-                  <TeamPurseCard key={t.id} team={t} leadingTeamId={highest?.teamId} />
+                  <TeamPurseCard 
+                    key={t.id} 
+                    team={t} 
+                    leadingTeamId={highest?.teamId} 
+                    onQuickBid={canQuickBid(t.id) ? handleQuickBid : undefined}
+                  />
                 ))}
               </div>
             </div>
@@ -230,7 +253,7 @@ function LivePlayerCard({
 }) {
   return (
     <div
-      className={`relative overflow-hidden rounded-3xl border ${status === "RUNNING" ? "border-primary/40 live-glow" : "border-white/10"} ${flash ? "flash" : ""}`}
+      className={`relative overflow-hidden rounded-3xl border ${status === "RUNNING" ? "border-primary/40 live-glow" : "border-white/10"} ${flash ? "flash" : ""} dark text-white`}
       data-testid="live-auction-card"
     >
       <div
@@ -418,13 +441,14 @@ function BidHistoryList({ bids }: { bids: AuctionStateDto["bidHistory"] }) {
   );
 }
 
-function TeamPurseCard({ team, leadingTeamId }: { team: AuctionStateDto["teams"][number]; leadingTeamId?: string }) {
+function TeamPurseCard({ team, leadingTeamId, onQuickBid }: { team: AuctionStateDto["teams"][number]; leadingTeamId?: string; onQuickBid?: (teamId: string) => void }) {
   const spent = Number(team.purseTotal) - Number(team.purseRemaining);
   const pct = (spent / Number(team.purseTotal)) * 100;
   const isLeading = leadingTeamId === team.id;
   return (
     <div
-      className={`rounded-2xl p-4 border transition-colors ${isLeading ? "border-primary bg-primary/5" : "border-white/10 bg-bg-elev"}`}
+      onClick={() => onQuickBid?.(team.id)}
+      className={`rounded-2xl p-4 border transition-all ${isLeading ? "border-primary bg-primary/5" : "border-white/10 bg-bg-elev"} ${onQuickBid ? "cursor-pointer hover:border-primary/50 hover:bg-bg-surface hover:shadow-lg hover:-translate-y-0.5" : ""}`}
       data-testid={`purse-card-${team.shortCode}`}
     >
       <div className="flex items-center gap-3">

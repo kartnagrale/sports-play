@@ -6,6 +6,7 @@ import com.neml.badminton.repository.UserRepository;
 import com.neml.badminton.security.JwtService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 
@@ -13,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
+@Transactional(readOnly = true)
 public class AuthService {
 
     private final UserRepository userRepository;
@@ -47,10 +49,11 @@ public class AuthService {
     }
 
     public AuthDtos.UserInfo me(User user) {
+        User managedUser = userRepository.findById(user.getId()).orElse(user);
         return new AuthDtos.UserInfo(
-                user.getId().toString(), user.getEmail(), user.getFullName(), user.getRole(),
-                user.getTeam() == null ? null : user.getTeam().getId().toString(),
-                user.getTeam() == null ? null : user.getTeam().getName()
+                managedUser.getId().toString(), managedUser.getEmail(), managedUser.getFullName(), managedUser.getRole(),
+                managedUser.getTeam() == null ? null : managedUser.getTeam().getId().toString(),
+                managedUser.getTeam() == null ? null : managedUser.getTeam().getName()
         );
     }
 }

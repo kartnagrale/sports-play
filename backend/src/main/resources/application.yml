@@ -7,9 +7,9 @@ spring:
   application:
     name: neml-badminton
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/neml_badminton}
-    username: ${DB_USER:postgres}
-    password: ${DB_PASSWORD:postgres}
+    url: ${DB_URL:jdbc:postgresql://uat-auction-hyd-cluster.cluster-cqiizwijdxjv.ap-south-2.rds.amazonaws.com:1521/postgres?currentSchema=play_neml&lock_timeout=300&idle_in_transaction_session_timeout=10000}
+    username: ${DB_USER:participant-masterv2_replica}
+    password: ${DB_PASSWORD:password123}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:

@@ -49,15 +49,15 @@ export default function LoginPage() {
 
   return (
     <div
-      className="min-h-screen w-full grid lg:grid-cols-2 relative"
+      className="min-h-screen w-full grid lg:grid-cols-2 relative bg-bg"
       style={{
-        background:
-          "radial-gradient(circle at 20% 20%, rgba(211,255,36,0.06), transparent 50%), radial-gradient(circle at 80% 80%, rgba(0,240,255,0.05), transparent 45%), #08090A",
+        backgroundImage:
+          "radial-gradient(circle at 20% 20%, color-mix(in srgb, var(--color-primary) 6%, transparent), transparent 50%), radial-gradient(circle at 80% 80%, color-mix(in srgb, var(--color-secondary) 5%, transparent), transparent 45%)",
       }}
     >
       {/* Left: brand hero */}
       <div
-        className="relative hidden lg:flex flex-col justify-between p-14 border-r border-white/10 overflow-hidden"
+        className="relative hidden lg:flex flex-col justify-between p-14 border-r border-[rgba(128,128,128,0.2)] overflow-hidden"
       >
         <div
           className="absolute inset-0 opacity-30"
@@ -72,7 +72,7 @@ export default function LoginPage() {
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(180deg, rgba(8,9,10,0.6) 0%, rgba(8,9,10,0.95) 100%)",
+              "linear-gradient(180deg, color-mix(in srgb, var(--color-bg) 60%, transparent) 0%, color-mix(in srgb, var(--color-bg) 95%, transparent) 100%)",
           }}
         />
         <div className="relative z-10">
@@ -81,12 +81,12 @@ export default function LoginPage() {
             LIVE AUCTION.<br />
             <span className="text-primary drop-shadow-glow">TRUE COMPETITION.</span>
           </div>
-          <p className="mt-6 max-w-md text-white/60 leading-relaxed">
+          <p className="mt-6 max-w-md opacity-60 leading-relaxed">
             Real-time bidding. Four teams. Forty-eight players. One championship.
             A professional badminton league management platform built for the sport.
           </p>
         </div>
-        <div className="relative z-10 grid grid-cols-3 gap-6 pt-8 border-t border-white/10">
+        <div className="relative z-10 grid grid-cols-3 gap-6 pt-8 border-t border-[rgba(128,128,128,0.2)]">
           <div>
             <div className="label-cap">Teams</div>
             <div className="stat-num text-3xl mt-1">04</div>
@@ -108,7 +108,7 @@ export default function LoginPage() {
           <div className="mb-8">
             <div className="label-cap">Sign in</div>
             <h1 className="h-heading text-4xl font-bold mt-2">Access Control</h1>
-            <p className="text-white/50 mt-2 text-sm">
+            <p className="opacity-50 mt-2 text-sm">
               Enter your credentials. Roles: Admin, Team Owner, or Viewer.
             </p>
           </div>
@@ -150,7 +150,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-8 border-t border-white/10 pt-6">
+          <div className="mt-8 border-t border-[rgba(128,128,128,0.2)] pt-6">
             <div className="label-cap mb-3">Quick sign-in (demo)</div>
             <div className="grid grid-cols-3 gap-2">
               <button
@@ -178,7 +178,7 @@ export default function LoginPage() {
                 Viewer
               </button>
             </div>
-            <p className="text-white/40 text-xs mt-3 leading-relaxed">
+            <p className="opacity-40 text-xs mt-3 leading-relaxed">
               admin@neml.com / Admin@123 · owner-mum@neml.com / Owner@123 · viewer@neml.com / Viewer@123
             </p>
           </div>
